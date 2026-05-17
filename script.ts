@@ -68,3 +68,33 @@ class SkupinovyWorkshop extends Lekce {
     }
 
 }
+
+// --- TESTOVÁNÍ A POLYMORFISMUS V KONZOLI ---
+
+try {
+    // Simulace výběru dat z číselníku (např. uživatel vybral Kytaru a Klavír)
+    const dataKytara = KATALOG_NASTROJU.find(n => n.id === 2)!;
+    const dataKlavir = KATALOG_NASTROJU.find(n => n.id === 1)!;
+    const dataBici = KATALOG_NASTROJU.find(n => n.id === 3)!;
+
+    // Vytvoření pole s mixem různých instancí (Polymorfismus)
+    const seznamLekci: Lekce[] = [
+        new IndividualniLekce(101, dataKytara.nazev, dataKytara.cenaZaHodinu, 2, true),
+        new SkupinovyWorkshop(102, dataKlavir.nazev, dataKlavir.cenaZaHodinu, 3, 5),
+        new IndividualniLekce(103, dataBici.nazev, dataBici.cenaZaHodinu, 1, false)
+    ];
+
+    console.log("--- PŘEHLED NAPLÁNOVANÝCH LEKCÍ ---");
+
+    // Procházení pole a volání metod bez ohledu na to, o jaký typ lekce jde
+    seznamLekci.forEach(lekce => {
+        console.log("-----------------------------------");
+        console.log(lekce.ziskejInfo());
+        console.log(`Celková cena: ${lekce.vypocitejKonecnouCenu()} Kč`);
+    });
+
+} catch (error) {
+    if (error instanceof Error) {
+        console.error("Chyba při vytváření objektu:", error.message);
+    }
+}

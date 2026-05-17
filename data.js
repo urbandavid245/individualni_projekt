@@ -1,16 +1,9 @@
-
-export interface INastroj {
-    id: number;
-    nazev: string;
-    cenaZaHodinu: number;
-}
-
-export const KATALOG_NASTROJU: INastroj[] = [
+export const KATALOG_NASTROJU = [
     { id: 1, nazev: "Klavír", cenaZaHodinu: 500 },
     { id: 2, nazev: "Kytara", cenaZaHodinu: 400 },
     { id: 3, nazev: "Bicí", cenaZaHodinu: 450 },
     { id: 4, nazev: "Zpěv", cenaZaHodinu: 420 },
-    { id: 5, nazev: "Flétna", cenaZaHodinu: 350},
+    { id: 5, nazev: "Flétna", cenaZaHodinu: 350 },
     { id: 6, nazev: "Housle", cenaZaHodinu: 480 },
     { id: 7, nazev: "Violoncello", cenaZaHodinu: 490 },
     { id: 8, nazev: "Saxofon", cenaZaHodinu: 460 },
