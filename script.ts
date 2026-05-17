@@ -1,4 +1,4 @@
-import { KATALOG_NASTROJU, INastroj } from './data.ts';
+import { KATALOG_NASTROJU, INastroj } from './data.js';
 
 /**
  * Abstraktní třída reprezentující obecnou lekci
@@ -56,7 +56,7 @@ class SkupinovyWorkshop extends Lekce {
     constructor(id:number, nastroj:string, cena: number, hodiny:number, pocetZaku:number){
     super(id,nastroj,cena,hodiny);
 
-    if (pocetZaku >2) throw new Error ("Workshop musí mít alespoň 2 žáky.");
+    if (pocetZaku < 3) throw new Error ("Workshop musí mít alespoň 3 žáky.");
     this._pocetZaku = pocetZaku;
     }
     public vypocitejKonecnouCenu(): number {
