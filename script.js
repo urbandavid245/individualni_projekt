@@ -61,6 +61,24 @@ class SkupinovyWorkshop extends Lekce {
         return `${super.ziskejInfo()} - Workshop (Počet žáků: ${this._pocetZaku})`;
     }
 }
+// Třída pro Duo lekci (přesně pro 2 účastníky)
+class DuoLekce extends Lekce {
+    // Specifická vlastnost: koeficient ceny pro duo (např. +40 % k základní ceně)
+    _koeficientDuo = 1.4;
+    constructor(id, nastroj, cena, hodiny) {
+        // Nepotřebujeme zadávat počet žáků, u Duo lekce jsou z podstaty věci vždy 2
+        super(id, nastroj, cena, hodiny);
+    }
+    vypocitejKonecnouCenu() {
+        // Cena se vypočítá jako: (základní cena * počet hodin) * 1.4
+        // (Případně uprav "this._zakladniCena" podle toho, jak sis tu vlastnost v abstraktní třídě reálně pojmenoval)
+        const zaklad = this._zakladniCena * this._pocetHodin;
+        return Math.round(zaklad * this._koeficientDuo);
+    }
+    ziskejInfo() {
+        return `${super.ziskejInfo()} - Duo lekce (pro 2 osoby)`;
+    }
+}
 // --- TESTOVÁNÍ A POLYMORFISMUS V KONZOLI ---
 try {
     // Simulace výběru dat z číselníku (např. uživatel vybral Kytaru a Klavír)
@@ -71,6 +89,7 @@ try {
     const seznamLekci = [
         new IndividualniLekce(101, dataKytara.nazev, dataKytara.cenaZaHodinu, 2, true),
         new SkupinovyWorkshop(102, dataKlavir.nazev, dataKlavir.cenaZaHodinu, 3, 5),
+        new DuoLekce(104, dataBici.nazev, dataBici.cenaZaHodinu, 2),
         new IndividualniLekce(103, dataBici.nazev, dataBici.cenaZaHodinu, 1, false)
     ];
     console.log("--- PŘEHLED NAPLÁNOVANÝCH LEKCÍ ---");
@@ -80,6 +99,11 @@ try {
         console.log(lekce.ziskejInfo());
         console.log(`Celková cena: ${lekce.vypocitejKonecnouCenu()} Kč`);
     });
+    const kytaraData = KATALOG_NASTROJU.find(n => n.id === 101);
+    if (kytaraData) {
+        // Přidáme novou Duo lekci do seznamu (např. na 2 hodiny)
+        seznamLekci.push(new DuoLekce(kytaraData.id, kytaraData.nazev, kytaraData.cenaZaHodinu, 2));
+    }
 }
 catch (error) {
     if (error instanceof Error) {
