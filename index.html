@@ -16,7 +16,7 @@
             <div class="logo-section">
                 <span class="logo-icon">🎵</span>
                 <h2>Harmonie</h2>
-                <p>Hudební škola</p>
+                <p>Hudební studio</p>
             </div>
             
             <nav class="sidebar-nav">
@@ -24,25 +24,24 @@
                 <a href="#" class="nav-item">➕ Přidat lekci (v přípravě)</a>
                 <a href="#" class="nav-item">👥 Studenti</a>
             </nav>
-
-            <div class="sidebar-footer">
-                <p>OOP Projekt - Fáze 2</p>
-            </div>
         </aside>
 
         <main class="main-content">
-            <header class="main-header">
-                <div class="header-title">
-                    <h1>Přehled naplánovaných lekcí</h1>
-                    <p class="subtitle">Správa individuálních lekcí a skupinových workshopů</p>
-                </div>
-                <div class="stats-badge">
-                    Studio Active 🟢
-                </div>
-            </header>
-
-            <section id="vypis-lekci" class="lessons-grid">
-                </section>
+           <section class="form-section">
+    <h3>Přidat novou lekci</h3>
+    <form id="lekce-form">
+        <input type="number" id="id" placeholder="ID lekce" required>
+        <input type="text" id="nastroj" placeholder="Nástroj (např. Kytara)" required>
+        <input type="number" id="cena" placeholder="Cena za hodinu" required>
+        <input type="number" id="hodiny" placeholder="Počet hodin" required>
+        <select id="typ">
+            <option value="individualni">Individuální</option>
+            <option value="workshop">Skupinový Workshop</option>
+        </select>
+        <input type="number" id="pocetZaku" placeholder="Počet žáků (jen pro workshop)" style="display:none;">
+        <button type="submit">Přidat lekci</button>
+    </form>
+</section>
         </main>
     </div>
 

@@ -155,3 +155,44 @@ if (htmlKontejner) {
     // Pojistka, kdyby náhodou někdo smazal ID v HTML
     console.error("Chyba: Nebyl nalezen kontejner s ID 'vypis-lekci'.");
 }
+const form = document.getElementById('lekce-form') as HTMLFormElement;
+const kontejner = document.getElementById('vypis-lekci') as HTMLElement;
+
+form.addEventListener('submit', (e) => {
+    e.preventDefault(); // Zabrání přebití stránky
+
+    // 1. Získání dat z formuláře
+    const id = parseInt((document.getElementById('id') as HTMLInputElement).value);
+    const nastroj = (document.getElementById('nastroj') as HTMLInputElement).value;
+    const cena = parseInt((document.getElementById('cena') as HTMLInputElement).value);
+    const hodiny = parseInt((document.getElementById('hodiny') as HTMLInputElement).value);
+    const typ = (document.getElementById('typ') as HTMLSelectElement).value;
+    const pocetZaku = parseInt((document.getElementById('pocetZaku') as HTMLInputElement).value);
+
+    // 2. Vytvoření instance (OOP logika)
+    let novaLekce: Lekce;
+    if (typ === 'workshop') {
+        novaLekce = new SkupinovyWorkshop(id, nastroj, cena, hodiny, pocetZaku);
+    } else {
+        novaLekce = new IndividualniLekce(id, nastroj, cena, hodiny);
+    }
+
+    // 3. Přidání do pole a okamžité překreslení
+    seznamLekci.push(novaLekce);
+    renderLekci(); 
+    form.reset(); // Vyčistí formulář
+});
+
+// Funkce pro překreslení (zavolej ji pokaždé, když se změní seznamLekci)
+function renderLekci() {
+    kontejner.innerHTML = ''; // Vyčistí starý výpis
+    seznamLekci.forEach(lekce => {
+        const div = document.createElement('div');
+        div.className = 'lesson-card';
+        div.innerHTML = `
+            <div class="lesson-info"><strong>Detail:</strong> ${lekce.ziskejInfo()}</div>
+            <div class="lesson-price">Celková cena: ${lekce.vypocitejKonecnouCenu()} Kč</div>
+        `;
+        kontejner.appendChild(div);
+    });
+}
