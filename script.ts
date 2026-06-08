@@ -91,6 +91,8 @@ class DuoLekce extends Lekce {
 }
 // --- TESTOVÁNÍ A POLYMORFISMUS V KONZOLI ---
 
+let seznamLekci: Lekce[] = [];
+
 try {
     // Simulace výběru dat z číselníku (např. uživatel vybral Kytaru a Klavír)
     const dataKytara = KATALOG_NASTROJU.find(n => n.id === 2)!;
@@ -98,7 +100,7 @@ try {
     const dataBici = KATALOG_NASTROJU.find(n => n.id === 3)!;
 
     // Vytvoření pole s mixem různých instancí (Polymorfismus)
-    const seznamLekci: Lekce[] = [
+    seznamLekci = [
         new IndividualniLekce(101, dataKytara.nazev, dataKytara.cenaZaHodinu, 2, true),
         new SkupinovyWorkshop(102, dataKlavir.nazev, dataKlavir.cenaZaHodinu, 3, 5),
         new DuoLekce(104, dataBici.nazev, dataBici.cenaZaHodinu, 2),
@@ -123,4 +125,33 @@ if (kytaraData) {
     if (error instanceof Error) {
         console.error("Chyba při vytváření objektu:", error.message);
     }
+}
+// --- TVŮJ DOSAVADNÍ KÓD (TŘÍDY A VÝBĚR DAT) ZŮSTÁVÁ NAD TÍMTO ---
+
+// 1. Najdeme prázdný HTML element, do kterého budeme vkládat data
+const htmlKontejner = document.getElementById("vypis-lekci");
+
+// Kontrola, jestli element v HTML opravdu existuje
+if (htmlKontejner) {
+    // Projdeme všechny lekce v poli
+    seznamLekci.forEach(lekce => {
+        // Získáme texty z našich OOP metod
+        const info = lekce.ziskejInfo();
+        const cena = lekce.vypocitejKonecnouCenu();
+
+        // 2. Vytvoříme kousek HTML kódu pro každou kartičku
+        // Používáme "backticks" (zpětné uvozovky ``) pro snadné vložení proměnných
+        const kartaHTML = `
+            <div class="lesson-card">
+                <div class="lesson-info"><strong>Detail:</strong> ${info}</div>
+                <div class="lesson-price">Celková cena: ${cena} Kč</div>
+            </div>
+        `;
+
+        // 3. Vložíme vytvořenou kartičku do HTML stránky
+        htmlKontejner.innerHTML += kartaHTML;
+    });
+} else {
+    // Pojistka, kdyby náhodou někdo smazal ID v HTML
+    console.error("Chyba: Nebyl nalezen kontejner s ID 'vypis-lekci'.");
 }

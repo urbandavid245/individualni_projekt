@@ -1,11 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Hudební Studio - Správa Lekcí</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-   <script type="module" src="script.js"></script>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-section">
+                <span class="logo-icon">🎵</span>
+                <h2>Harmonie</h2>
+                <p>Hudební škola</p>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active">📋 Přehled lekcí</a>
+                <a href="#" class="nav-item">➕ Přidat lekci (v přípravě)</a>
+                <a href="#" class="nav-item">👥 Studenti</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>OOP Projekt - Fáze 2</p>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <div class="header-title">
+                    <h1>Přehled naplánovaných lekcí</h1>
+                    <p class="subtitle">Správa individuálních lekcí a skupinových workshopů</p>
+                </div>
+                <div class="stats-badge">
+                    Studio Active 🟢
+                </div>
+            </header>
+
+            <section id="vypis-lekci" class="lessons-grid">
+                </section>
+        </main>
+    </div>
+
+    <script type="module" src="script.js"></script>
 </body>
 </html>
