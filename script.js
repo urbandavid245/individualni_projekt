@@ -1,112 +1,236 @@
 import { KATALOG_NASTROJU } from './data.js';
 /**
- * Abstraktní třída reprezentující obecnou lekci
+ * Abstraktní třída reprezentující obecný formát školní výuky na ZUŠ
  */
-class Lekce {
-    // Zapouzdření: private pro id, protected pro ostatní, aby k nim mohli potomci
+class Vyuka {
     _id;
-    _nastroj;
-    _zakladniCena;
-    _pocetHodin;
-    constructor(id, nastroj, cena, hodiny) {
-        // Validuje data
-        if (hodiny <= 0)
-            throw new Error("Počet hodin musí být kladné číslo.");
-        if (nastroj.trim() === "")
-            throw new Error("Název nástroje nesmí být prázdný.");
+    _obor;
+    _zakladniSazba;
+    _tydenniDotace;
+    constructor(id, obor, sazba, dotace) {
+        if (dotace <= 0)
+            throw new Error("Hodinová dotace musí být kladné číslo.");
+        if (obor.trim() === "")
+            throw new Error("Název oboru nesmí být prázdný.");
         this._id = id;
-        this._nastroj = nastroj;
-        this._zakladniCena = cena;
-        this._pocetHodin = hodiny;
+        this._obor = obor;
+        this._zakladniSazba = sazba;
+        this._tydenniDotace = dotace;
     }
-    //Metoda pro prehledny vypis informaci
+    get id() {
+        return this._id;
+    }
     ziskejInfo() {
-        return `[ID: ${this._id}] ${this._nastroj} (${this._pocetHodin}h)`;
+        return `[Třída ID: ${this._id}] ${this._obor} (${this._tydenniDotace}h týdně)`;
     }
 }
-//Třída pro individuální výuku jeden na jednoho
-class IndividualniLekce extends Lekce {
-    _jePokrocily;
-    constructor(id, nastroj, cena, hodiny, jePokrocily) {
-        super(id, nastroj, cena, hodiny);
-        this._jePokrocily = jePokrocily;
+// 1. Třída pro individuální výuku (jeden učitel - jeden žák)
+class IndividualniVyuka extends Vyuka {
+    _jeRozsireneStudium;
+    constructor(id, obor, sazba, dotace, jeRozsirene) {
+        super(id, obor, sazba, dotace);
+        this._jeRozsireneStudium = jeRozsirene;
     }
-    vypocitejKonecnouCenu() {
-        let cena = this._pocetHodin * this._zakladniCena;
-        if (this._jePokrocily) {
-            cena *= 1.15;
+    vypocitejSkolne() {
+        let skolne = this._tydenniDotace * this._zakladniSazba;
+        if (this._jeRozsireneStudium) {
+            skolne *= 1.15; // Příplatek za náročnější program II. stupně
         }
-        return Math.round(cena);
+        return Math.round(skolne);
     }
     ziskejInfo() {
-        const uroven = this._jePokrocily ? "Pokročilý" : "Začátečník";
-        return `${super.ziskejInfo()} - Individuální (${uroven})`;
+        const stupen = this._jeRozsireneStudium ? "II. stupeň (Rozšířené)" : "I. stupeň (Základní)";
+        return `${super.ziskejInfo()} - Individuální forma (${stupen})`;
     }
 }
-//Třída pro workshop
-class SkupinovyWorkshop extends Lekce {
-    _pocetZaku;
-    POPLATEK_ZA_NOTY = 50;
-    constructor(id, nastroj, cena, hodiny, pocetZaku) {
-        super(id, nastroj, cena, hodiny);
+// 2. Třída pro kolektivní výuku (např. Výtvarný obor, Taneční obor, Hudební nauka)
+class KolektivniVyuka extends Vyuka {
+    _pocetZakuVeTride;
+    POPLATEK_ZA_MATERIAL = 50; // Pomůcky, notový materiál apod.
+    constructor(id, obor, sazba, dotace, pocetZaku) {
+        super(id, obor, sazba, dotace);
         if (pocetZaku < 3)
-            throw new Error("Workshop musí mít alespoň 3 žáky.");
-        this._pocetZaku = pocetZaku;
+            throw new Error("Kolektivní výuka musí mít alespoň 3 žáky.");
+        this._pocetZakuVeTride = pocetZaku;
     }
-    vypocitejKonecnouCenu() {
-        const zlevnenaSazba = this._zakladniCena * 0.8;
-        return Math.round((this._pocetHodin * zlevnenaSazba) + (this._pocetZaku + this.POPLATEK_ZA_NOTY));
-    }
-    ziskejInfo() {
-        return `${super.ziskejInfo()} - Workshop (Počet žáků: ${this._pocetZaku})`;
-    }
-}
-// Třída pro Duo lekci (přesně pro 2 účastníky)
-class DuoLekce extends Lekce {
-    // Specifická vlastnost: koeficient ceny pro duo (např. +40 % k základní ceně)
-    _koeficientDuo = 1.4;
-    constructor(id, nastroj, cena, hodiny) {
-        // Nepotřebujeme zadávat počet žáků, u Duo lekce jsou z podstaty věci vždy 2
-        super(id, nastroj, cena, hodiny);
-    }
-    vypocitejKonecnouCenu() {
-        // Cena se vypočítá jako: (základní cena * počet hodin) * 1.4
-        // (Případně uprav "this._zakladniCena" podle toho, jak sis tu vlastnost v abstraktní třídě reálně pojmenoval)
-        const zaklad = this._zakladniCena * this._pocetHodin;
-        return Math.round(zaklad * this._koeficientDuo);
+    vypocitejSkolne() {
+        // Kolektivní výuka mívá základní dotaci levnější (např. 80 % individuální)
+        const kolektivniSazba = this._zakladniSazba * 0.8;
+        return Math.round((this._tydenniDotace * kolektivniSazba) + (this._pocetZakuVeTride * this.POPLATEK_ZA_MATERIAL));
     }
     ziskejInfo() {
-        return `${super.ziskejInfo()} - Duo lekce (pro 2 osoby)`;
+        return `${super.ziskejInfo()} - Kolektivní forma (Žáků ve třídě: ${this._pocetZakuVeTride})`;
     }
 }
-// --- TESTOVÁNÍ A POLYMORFISMUS V KONZOLI ---
-try {
-    // Simulace výběru dat z číselníku (např. uživatel vybral Kytaru a Klavír)
-    const dataKytara = KATALOG_NASTROJU.find(n => n.id === 2);
-    const dataKlavir = KATALOG_NASTROJU.find(n => n.id === 1);
-    const dataBici = KATALOG_NASTROJU.find(n => n.id === 3);
-    // Vytvoření pole s mixem různých instancí (Polymorfismus)
-    const seznamLekci = [
-        new IndividualniLekce(101, dataKytara.nazev, dataKytara.cenaZaHodinu, 2, true),
-        new SkupinovyWorkshop(102, dataKlavir.nazev, dataKlavir.cenaZaHodinu, 3, 5),
-        new DuoLekce(104, dataBici.nazev, dataBici.cenaZaHodinu, 2),
-        new IndividualniLekce(103, dataBici.nazev, dataBici.cenaZaHodinu, 1, false)
-    ];
-    console.log("--- PŘEHLED NAPLÁNOVANÝCH LEKCÍ ---");
-    // Procházení pole a volání metod bez ohledu na to, o jaký typ lekce jde
-    seznamLekci.forEach(lekce => {
-        console.log("-----------------------------------");
-        console.log(lekce.ziskejInfo());
-        console.log(`Celková cena: ${lekce.vypocitejKonecnouCenu()} Kč`);
+// 3. Třída pro komorní výuku (např. čtyřruční hra, komorní soubory, duo)
+class KomorniVyuka extends Vyuka {
+    _koeficientKomorniHry = 1.4;
+    constructor(id, obor, sazba, dotace) {
+        super(id, obor, sazba, dotace);
+    }
+    vypocitejSkolne() {
+        const zaklad = this._zakladniSazba * this._tydenniDotace;
+        return Math.round(zaklad * this._koeficientKomorniHry);
+    }
+    ziskejInfo() {
+        return `${super.ziskejInfo()} - Komorní výuka (Duo)`;
+    }
+}
+// ============================================================================
+// --- GLOBÁLNÍ STAV A PROPOJENÍ S UI ---
+// ============================================================================
+const skolniMatrika = [];
+const form = document.getElementById('lekce-form');
+const htmlKontejner = document.getElementById('vypis-lekci');
+const typSelect = document.getElementById('typ');
+const nastrojSelect = document.getElementById('nastroj');
+const blockPocetZaku = document.getElementById('block-pocet-zaku');
+const blockPokrocily = document.getElementById('block-pokrocily');
+function inicializujNastroje() {
+    if (!nastrojSelect)
+        return;
+    KATALOG_NASTROJU.forEach((nastroj) => {
+        const option = document.createElement('option');
+        option.value = nastroj.id.toString();
+        // Načítáme z původního souboru, ale prezentujeme jako ŠVP obor
+        option.textContent = `${nastroj.nazev} (Základ: ${nastroj.cenaZaHodinu} Kč)`;
+        nastrojSelect.appendChild(option);
     });
-    const kytaraData = KATALOG_NASTROJU.find(n => n.id === 101);
-    if (kytaraData) {
-        // Přidáme novou Duo lekci do seznamu (např. na 2 hodiny)
-        seznamLekci.push(new DuoLekce(kytaraData.id, kytaraData.nazev, kytaraData.cenaZaHodinu, 2));
-    }
 }
-catch (error) {
-    if (error instanceof Error) {
-        console.error("Chyba při vytváření objektu:", error.message);
-    }
+if (typSelect) {
+    typSelect.addEventListener('change', () => {
+        const volba = typSelect.value;
+        if (blockPocetZaku)
+            blockPocetZaku.style.display = (volba === 'workshop') ? 'block' : 'none';
+        if (blockPokrocily)
+            blockPokrocily.style.display = (volba === 'individualni') ? 'block' : 'none';
+        const inputZaci = document.getElementById('pocetZaku');
+        if (inputZaci)
+            inputZaci.required = (volba === 'workshop');
+    });
 }
+if (form) {
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const idInput = document.getElementById('id').value;
+        const nastrojId = parseInt(nastrojSelect.value);
+        const hodiny = parseInt(document.getElementById('hodiny').value);
+        const typ = typSelect.value;
+        const nastrojData = KATALOG_NASTROJU.find(n => n.id === nastrojId);
+        if (!nastrojData)
+            return;
+        try {
+            let novaVyuka;
+            const unikatniId = parseInt(idInput);
+            if (skolniMatrika.some(v => v.id === unikatniId)) {
+                throw new Error("Třída nebo výuka s tímto ID kódem již v matrice existuje.");
+            }
+            if (typ === 'workshop') {
+                const pocetZaku = parseInt(document.getElementById('pocetZaku').value);
+                novaVyuka = new KolektivniVyuka(unikatniId, nastrojData.nazev, nastrojData.cenaZaHodinu, hodiny, pocetZaku);
+            }
+            else if (typ === 'duo') {
+                novaVyuka = new KomorniVyuka(unikatniId, nastrojData.nazev, nastrojData.cenaZaHodinu, hodiny);
+            }
+            else {
+                const jePokrocily = document.getElementById('jePokrocily').checked;
+                novaVyuka = new IndividualniVyuka(unikatniId, nastrojData.nazev, nastrojData.cenaZaHodinu, hodiny, jePokrocily);
+            }
+            skolniMatrika.push(novaVyuka);
+            renderMatriky();
+            form.reset();
+            if (blockPocetZaku)
+                blockPocetZaku.style.display = 'none';
+            if (blockPokrocily)
+                blockPokrocily.style.display = 'block';
+        }
+        catch (error) {
+            alert("Chyba školní validace: " + error.message);
+        }
+    });
+}
+function renderMatriky() {
+    if (!htmlKontejner)
+        return;
+    htmlKontejner.innerHTML = '';
+    if (skolniMatrika.length === 0) {
+        htmlKontejner.innerHTML = `<p style="color: #64748b; grid-column: 1/-1;">V tomto pololetí není evidována žádná aktivní výuka.</p>`;
+        return;
+    }
+    skolniMatrika.forEach((vyuka) => {
+        const info = vyuka.ziskejInfo();
+        const skolne = vyuka.vypocitejSkolne();
+        htmlKontejner.innerHTML += `
+            <div class="lesson-card">
+                <div class="lesson-info"><strong>Specifikace výuky</strong> ${info}</div>
+                <div class="lesson-price">${skolne} Kč <span style="font-size:0.8rem; font-weight:400; color:#64748b;">(Školné)</span></div>
+            </div>
+        `;
+    });
+}
+// ============================================================================
+// --- MANAGEMENT STRÁNEK (TABY) A KATALOG OBORŮ ---
+// ============================================================================
+function renderKatalogOboru() {
+    const katalogKontejner = document.getElementById('katalog-grid');
+    if (!katalogKontejner)
+        return;
+    katalogKontejner.innerHTML = '';
+    KATALOG_NASTROJU.forEach((nastroj) => {
+        katalogKontejner.innerHTML += `
+            <div class="lesson-card">
+                <div class="lesson-info">
+                    <strong>Umělecký obor (ŠVP)</strong>
+                    <span style="font-size: 1.2rem; font-weight: 700; color: #0f172a; display:block; margin-top:0.25rem;">${nastroj.nazev}</span>
+                    <p style="margin-top: 0.5rem; color: #64748b; font-size: 0.9rem;">Výuka probíhá plně v souladu s rámcovým vzdělávacím programem MŠMT.</p>
+                </div>
+                <div class="lesson-price">${nastroj.cenaZaHodinu} Kč <span style="font-size:0.75rem; font-weight:400; color:#64748b;">/ základní sazba</span></div>
+            </div>
+        `;
+    });
+}
+function prepniSekci(ciloveId) {
+    const vsechnySekce = document.querySelectorAll('.tab-content');
+    const vsechnyPolozkyMenu = document.querySelectorAll('.nav-item');
+    vsechnySekce.forEach(sekce => {
+        if (sekce.id === ciloveId) {
+            sekce.classList.remove('hidden');
+        }
+        else {
+            sekce.classList.add('hidden');
+        }
+    });
+    vsechnyPolozkyMenu.forEach(polozka => {
+        if (polozka.getAttribute('data-tab') === ciloveId) {
+            polozka.classList.add('active');
+        }
+        else {
+            polozka.classList.remove('active');
+        }
+    });
+}
+function inicializujNavigaci() {
+    const polozkyMenu = document.querySelectorAll('.nav-item');
+    const tlacitkaNastenky = document.querySelectorAll('.dash-btn');
+    polozkyMenu.forEach(polozka => {
+        polozka.addEventListener('click', (e) => {
+            e.preventDefault();
+            const cil = polozka.getAttribute('data-tab');
+            if (cil)
+                prepniSekci(cil);
+        });
+    });
+    tlacitkaNastenky.forEach(tlacitko => {
+        tlacitko.addEventListener('click', () => {
+            const cil = tlacitko.getAttribute('data-target');
+            if (cil)
+                prepniSekci(cil);
+        });
+    });
+}
+document.addEventListener('DOMContentLoaded', () => {
+    inicializujNastroje();
+    renderMatriky();
+    renderKatalogOboru();
+    inicializujNavigaci();
+});

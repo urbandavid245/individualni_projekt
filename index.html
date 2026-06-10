@@ -1,11 +1,167 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Informační systém ZUŠ Harmonie</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght=400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-   <script type="module" src="script.js"></script>
+
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="logo-section">
+                <span class="logo-icon">🏛️</span>
+                <h2>ZUŠ Harmonie</h2>
+                <p>Základní umělecká škola</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-tab="sekce-nastenka">🏠 Nástěnka</a>
+                <a href="#" class="nav-item" data-tab="sekce-lekce">📝 Evidence výuky</a>
+                <a href="#" class="nav-item" data-tab="sekce-katalog">🎨 Nabízené obory</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                Klasifikační systém &copy; 2026
+            </div>
+        </aside>
+
+        <main class="main-content">
+
+            <section id="sekce-nastenka" class="tab-content">
+                <div class="main-header">
+                    <div>
+                        <h1>Školní nástěnka</h1>
+                        <p class="subtitle">Vítejte v interním systému Základní umělecké školy Harmonie</p>
+                    </div>
+                    <div class="stats-badge">Školní rok 2026/2027 🏫</div>
+                </div>
+
+                <div class="welcome-banner">
+                    <h2>Rozvíjíme talent a kreativitu.</h2>
+                    <p>Tento modul slouží pedagogům a vedení školy k evidenci vyučovacích hodin, správě individuální i kolektivní výuky a automatickému výpočtu školného podle studijních programů (ŠVP).</p>
+                </div>
+
+                <div class="dashboard-grid">
+                    
+                    <div class="dash-card">
+                        <div>
+                            <h3>Plánování rozvrhů & Výuka</h3>
+                            <p>Zadávejte schválené vyučovací hodiny pro individuální studium, komorní hru nebo kolektivní obory. Systém automaticky spočítá školné.</p>
+                        </div>
+                        <button class="dash-btn" data-target="sekce-lekce">Otevřít evidenci výuky &rarr;</button>
+                    </div>
+
+                    <div class="dash-card">
+                        <div>
+                            <h3>Katalog oborů</h3>
+                            <p>Prohlédněte si seznam vyučovaných uměleckých předmětů schválených v rámci Školního vzdělávacího programu včetně základních sazeb.</p>
+                        </div>
+                        <button class="dash-btn" data-target="sekce-katalog">Zobrazit obory &rarr;</button>
+                    </div>
+
+                    <div class="dash-card">
+                        <div>
+                            <h3>Vedení školy & Kontakty</h3>
+                            <p style="margin-bottom: 0.5rem;"><strong>Adresa:</strong> Umělecká 425/12, 110 00 Praha 1</p>
+                            <p style="margin-bottom: 0.5rem;"><strong>Datová schránka:</strong> zus48hz</p>
+                            <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 0.75rem 0;">
+                            <p><strong>Ředitel:</strong> Mgr. MgA. Petr Svoboda</p>
+                            <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem;">petr.svoboda@zusharmonie.cz</p>
+                            <p><strong>Zástupce:</strong> Bc. Alena Dvořáková</p>
+                            <p style="font-size: 0.85rem; color: #64748b;">alena.dvorakova@zusharmonie.cz</p>
+                        </div>
+                    </div>
+
+                    <div class="dash-card">
+                        <div>
+                            <h3>Pedagogický sbor (ŠVP)</h3>
+                            <ul class="news-list" style="gap: 0.4rem; margin-top: 0.5rem;">
+                                <li style="font-size: 0.85rem; padding-bottom: 0.4rem;">
+                                    <strong>Klavír:</strong> MgA. J. Novotná (jana.novotna@...)
+                                </li>
+                                <li style="font-size: 0.85rem; padding-bottom: 0.4rem;">
+                                    <strong>Kytara:</strong> DiS. M. Kučera (marek.kucera@...)
+                                </li>
+                                <li style="font-size: 0.85rem; padding-bottom: 0.4rem;">
+                                    <strong>Flétna:</strong> Mgr. E. Blažková (eva.blazkova@...)
+                                </li>
+                                <li style="font-size: 0.85rem; padding-bottom: 0.4rem;">
+                                    <strong>Housle:</strong> MgA. T. Černý (tomas.cerny@...)
+                                </li>
+                                <li style="font-size: 0.85rem;">
+                                    <strong>Bicí:</strong> J. Krejčí (jan.krejci@...)
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                
+            </section>
+
+            <section id="sekce-lekce" class="tab-content hidden">
+                <div class="main-header">
+                    <div>
+                        <h1>Evidence školní výuky</h1>
+                        <p class="subtitle">Správa studijních plánů a školního rozvrhu</p>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3>Zapsat vyučovací hodinu / předmět</h3>
+                    <form id="lekce-form">
+                        <div class="form-group-row">
+                            <input type="number" id="id" placeholder="Kód/ID třídy (např. 201)" required min="1">
+                            <select id="nastroj" required>
+                                <option value="" disabled selected>Vyberte předmět/obor...</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group-row">
+                            <input type="number" id="hodiny" placeholder="Hodinová dotace za týden" required min="1">
+                            <select id="typ" required>
+                                <option value="individualni" selected>Individuální výuka (1 žák)</option>
+                                <option value="workshop">Kolektivní výuka (skupina)</option>
+                                <option value="duo">Komorní výuka / Duo</option>
+                            </select>
+                        </div>
+
+                        <div id="block-pocet-zaku" style="display: none;">
+                            <input type="number" id="pocetZaku" placeholder="Počet žáků v této třídě (min. 3)" min="3">
+                        </div>
+
+                        <div id="block-pokrocily">
+                            <label for="jePokrocily">
+                                <input type="checkbox" id="jePokrocily">
+                                Žák II. stupně / Rozšířené studium (příplatek 15 %)
+                            </label>
+                        </div>
+
+                        <button type="submit" class="submit-btn">Zapsat výuku do systému</button>
+                    </form>
+                </div>
+
+                <div id="vypis-lekci" class="lessons-grid">
+                    </div>
+            </section>
+
+            <section id="sekce-katalog" class="tab-content hidden">
+                <div class="main-header">
+                    <div>
+                        <h1>Katalog uměleckých oborů</h1>
+                        <p class="subtitle">Přehled vyučovaných předmětů schválených Ministerstvem školství</p>
+                    </div>
+                </div>
+
+                <div id="katalog-grid" class="lessons-grid">
+                    </div>
+            </section>
+
+        </main>
+    </div>
+
+    <script type="module" src="script.js"></script>
 </body>
 </html>
