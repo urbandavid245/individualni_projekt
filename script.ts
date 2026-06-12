@@ -301,6 +301,6 @@ dashBtns.forEach(btn => {
 });
 
 // SPUSTENI APLIKACE
-// Volá inicializacní funkce pro naplneni katalogu a vykresli pocatecni stav
+// Vola inicializacni funkce pro naplneni katalogu a vykresli pocatecni stav
 inicializujAplikaci();
 renderMatriky();
