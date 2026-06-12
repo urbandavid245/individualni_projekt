@@ -1,17 +1,23 @@
+// Import katalogu nastroju ze souboru dat
 import { KATALOG_NASTROJU } from './data.js';
 
+// Rozhrani pro definici nastroje (predmetu/oboru vyuky)
+// Kazdy nastroj ma ID, nazev a cenu za jednu hodinu vyuky
 interface INastroj {
     id: number;
     nazev: string;
     cenaZaHodinu: number;
 }
 
-// abstraktni trida
+// ABSTRAKTNI TRIDA VYUKA
+// Tato trida je zakladem pro vsechny typy vyuky (individualni, kolektivni, komorna)
+// Obsahuje spolecne vlastnosti a abstraktni metodu pro vypocet skolneho
 abstract class Vyuka {
     protected _id: number;
     protected _obor: INastroj;
     protected _tydenniDotace: number;
 
+    // Konstruktor overi, ze tydenna dotace je pozitivni
     constructor(id: number, obor: INastroj, tydenniDotace: number) {
         if (tydenniDotace <= 0) throw new Error("Hodinová dotace musí být větší než 0.");
         this._id = id;
@@ -19,17 +25,25 @@ abstract class Vyuka {
         this._tydenniDotace = tydenniDotace;
     }
 
+    // Gettery pro pristup k privatnim vlastnostem
     public get id(): number { return this._id; }
     public get obor(): INastroj { return this._obor; }
     
+    // Abstraktni metoda - kazda podtrida ji musi implementovat
     abstract vypocitejSkolne(): number;
     
+    // Vraci informacni retezec o typu vyuky a poctu hodin
     public ziskejInfo(): string {
         return `${this._obor.nazev} (${this._tydenniDotace}h týdně)`;
     }
 }
 
-//  odvozene tridy (dedicnost a polymorfismus) 
+// ODVOZENE TRIDY VYUKY
+// Kazda podtrida reprezentuje jiny typ vyuky a vypocitava skolne podle svych pravidel
+// Toto je implementace dedicnosti a polymorfismu v TypeScriptu 
+// INDIVIDUALNI VYUKA
+// Vyuka jeden na jednoho. Umoznuje priplatek pro pokrocile zaky.
+// Vypocet: (hodiny * cena za hodinu) * 1.15 pokud je pokrocily (15% priplatek)
 class IndividualniVyuka extends Vyuka {
     private _jePokrocily: boolean;
 
@@ -38,6 +52,7 @@ class IndividualniVyuka extends Vyuka {
         this._jePokrocily = jePokrocily;
     }
 
+    // Vypocitava skolne s potencialnim priplatkem pro pokrocile zaky
     override vypocitejSkolne(): number {
         let zaklad = this._tydenniDotace * this._obor.cenaZaHodinu;
         if (this._jePokrocily) zaklad *= 1.15; // II. stupen priplatek 15%
@@ -45,6 +60,10 @@ class IndividualniVyuka extends Vyuka {
     }
 }
 
+// KOLEKTIVNI VYUKA (WORKSHOP)
+// Vyuka pro skupiny - minimalne 3 zaci jsou povinni.
+// Cena za hodinu je snizena na 80% + flat fee 50 Kc na zaka
+// Vypocet: (hodiny * cena za hodinu * 0.8) + (pocet zaku * 50)
 class KolektivniVyuka extends Vyuka {
     private _pocetZaku: number;
 
@@ -54,47 +73,64 @@ class KolektivniVyuka extends Vyuka {
         this._pocetZaku = pocetZaku;
     }
 
+    // Vypocitava skolne se slevou na hodinu a poplatkem za zaky
     override vypocitejSkolne(): number {
         const zaklad = this._tydenniDotace * (this._obor.cenaZaHodinu * 0.8);
         return Math.round(zaklad + (this._pocetZaku * 50));
     }
 }
 
+// KOMORNI VYUKA (DUO)
+// Vyuka pro dva zaky spolecne - jsou vysoke naklady
+// Vypocet: (hodiny * cena za hodinu) * 1.4 (40% priplatek)
 class KomorniVyuka extends Vyuka {
     constructor(id: number, obor: INastroj, tydenniDotace: number) {
         super(id, obor, tydenniDotace);
     }
 
+    // Vypocitava skolne s priplatkem pro duo vyuku
     override vypocitejSkolne(): number {
         return Math.round((this._obor.cenaZaHodinu * this._tydenniDotace) * 1.4);
     }
 }
 
-// globalni stav a selektory
+// GLOBALNI STAV A SELEKTORY
+// Skolni matrika - pole pro ukladani vsech vytvoreneych lekci (jednotlivych vyuk)
 const skolniMatrika: Vyuka[] = [];
 
+// HTML elementy - reference na dulezite prvky stranky
 const form = document.getElementById('lekce-form') as HTMLFormElement;
 const htmlKontejner = document.getElementById('vypis-lekci') as HTMLElement;
 const typSelect = document.getElementById('typ') as HTMLSelectElement;
 const nastrojSelect = document.getElementById('nastroj') as HTMLSelectElement;
 const katalogGrid = document.getElementById('katalog-grid') as HTMLElement;
 
+// Blok pro skryvani a zobrazovani specifickych poli formulare
 const blockPocetZaku = document.getElementById('block-pocet-zaku') as HTMLElement;
 const blockPokrocily = document.getElementById('block-pokrocily') as HTMLElement;
 
-// aplneni vyberu oboru a statickeho katalogu
+// INICIALIZACE APLIKACE
+// Tato funkce se spousti pri nacitani stranky
+// Naplni vybery dostupnych oboru a vykresli katalog nastroju
 function inicializujAplikaci(): void {
+    // Kontrola ze select element existuje
     if (!nastrojSelect) return;
+    
+    // Vycisti obsah selectu a prida defaultni volbu
     nastrojSelect.innerHTML = '<option value="" disabled selected>Vyberte předmět/obor...</option>';
     
+    // Vycisti katalogGrid
     if (katalogGrid) katalogGrid.innerHTML = '';
 
+    // Iteruje skrze vsechny dostupne nastroje z katalogu
     KATALOG_NASTROJU.forEach(nastroj => {
+        // Vytvori option prvek pro select
         const option = document.createElement('option');
         option.value = nastroj.id.toString();
         option.textContent = `${nastroj.nazev} (${nastroj.cenaZaHodinu} Kč/h)`;
         nastrojSelect.appendChild(option);
         
+        // Vytvori a prida kartu nastroje do katalogi gridu
         if (katalogGrid) {
             const card = document.createElement('div');
             card.className = 'dash-card';
@@ -108,33 +144,45 @@ function inicializujAplikaci(): void {
     });
 }
 
-// dynamicke skryvani formularovych poli 
+// DYNAMICKE ZOBRAZOVANI/SKRYVANI POLI FORMULARE
+// Podle zvoleneho typu vyuky se zobrazi pouze relevantni pole
+// Napriklad: kolektivni vyuka potrebuje pocet zaku, individualni potrebuje volbu pokrocilosti
 if (typSelect) {
     typSelect.addEventListener('change', () => {
         const val = typSelect.value;
+        // Zobraz pocet zaku pouze pro kolektivni (workshop)
         blockPocetZaku.style.display = (val === 'workshop') ? 'block' : 'none';
+        // Zobraz pokrocily switch pouze pro individualni
         blockPokrocily.style.display = (val === 'individualni') ? 'block' : 'none';
     });
 }
 
-// rendering karet zapsanych lekci 
+// VYKRESLOVANI SEZNAMU LEKCI
+// Tato funkce vykresli všechny zapsane lekce jako karty
+// Kazda karta ukazuje typ vyuky, predmet, pocet hodin a vypoctene skolne
 function renderMatriky(): void {
     if (!htmlKontejner) return;
+    
+    // Vycisti obsah kontejneru
     htmlKontejner.innerHTML = '';
 
+    // Pokud neni zadna lekce - zobraz prazdnou zpravu
     if (skolniMatrika.length === 0) {
         htmlKontejner.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#64748b; padding:2rem;">Zatím nebyly zapsány žádné vyučovací hodiny.</p>';
         return;
     }
 
+    // Iteruje vsechny lekce a vykresli pro kazdu kartu
     skolniMatrika.forEach(vyuka => {
         const card = document.createElement('div');
         card.className = 'dash-card';
         
+        // Stanovi badge text podle typu lekce
         let badgeText = ' Individuální';
         if (vyuka instanceof KolektivniVyuka) badgeText = ' Kolektivní';
         if (vyuka instanceof KomorniVyuka) badgeText = ' Komorní (Duo)';
 
+        // Vytvori HTML obsah karty s vypoctenym skolnym
         card.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
                 <span style="font-weight:700; color:#1e293b;">Lekce #${vyuka.id}</span>
@@ -151,11 +199,14 @@ function renderMatriky(): void {
     });
 }
 
-// submit formulare
+// OBSLUHA ODEVZDANI FORMULARE
+// Tato funkce se spousti kdyz uzivatel odesle formular pro vytvoreni nove lekce
 if (form) {
     form.addEventListener('submit', (e) => {
+        // Zabrani vychozimu chovani formulare (obnoveni strany)
         e.preventDefault();
         try {
+            // Ziska vsechny vstupni hodnoty z formulare
             const idInput = document.getElementById('id') as HTMLInputElement;
             const hodinyInput = document.getElementById('hodiny') as HTMLInputElement;
             
@@ -164,53 +215,75 @@ if (form) {
             const hodiny = parseInt(hodinyInput.value);
             const typ = typSelect.value;
 
+            // Kontrola ze ID lekce jiz v systemu neexistuje
             if (skolniMatrika.some(v => v.id === id)) {
                 throw new Error(`Třída s ID kódem ${id} již v systému existuje.`);
             }
 
+            // Hleda vybrany nastroj v katalogu
             const vybranyObor = KATALOG_NASTROJU.find(n => n.id === nastrojId);
             if (!vybranyObor) throw new Error("Vyberte platný obor.");
 
+            // Vytvari spravny typ lekce podle volby uzivatele
             let novaVyuka: Vyuka;
 
             if (typ === 'individualni') {
+                // Individualni vyuka - ziska informaci o pokrocilosti
                 const jePokrocily = (document.getElementById('jePokrocily') as HTMLInputElement).checked;
                 novaVyuka = new IndividualniVyuka(id, vybranyObor, hodiny, jePokrocily);
             } else if (typ === 'workshop') {
+                // Kolektivni vyuka - ziska pocet zaku
                 const pocetZaku = parseInt((document.getElementById('pocetZaku') as HTMLInputElement).value);
                 novaVyuka = new KolektivniVyuka(id, vybranyObor, hodiny, pocetZaku);
             } else {
+                // Komorni vyuka (duo)
                 novaVyuka = new KomorniVyuka(id, vybranyObor, hodiny);
             }
 
+            // Prida novou lekci do skolni matrik
             skolniMatrika.push(novaVyuka);
+            
+            // Resetuje formulrr a skryje prislusne pole
             form.reset();
             blockPocetZaku.style.display = 'none';
             blockPokrocily.style.display = 'block';
+            
+            // Prekresli seznam lekci s novou hodinou
             renderMatriky();
 
         } catch (err: any) {
+            // Zobrazi chybovu zpravu pri problemu
             alert(err.message);
         }
     });
 }
 
-// SPA routing (prepinani oken bez obnoveni stranky)
+// SPA ROUTING - PREPINANI KARTY BEZ OBNOVENI STRANKY
+// Umoznuje uzivateli pohodlne prepinat mezi jednotlivymi kartami aplikace
+// (Katalog, Pridat lekci, Seznam lekci) bez nutnosti obnovit celou stranku
+
+// Ziska reference na vsechny navigacni prvky a kartami s obsahem
 const navItems = document.querySelectorAll('.nav-item');
 const tabContents = document.querySelectorAll('.tab-content');
 const dashBtns = document.querySelectorAll('.dash-btn');
 
+// Funkce pro prepnuti karty - skryje vsechny karty a zobrazi jen vybranou
 function switchTab(targetTabId: string) {
+    // Skryje vsechny karty
     tabContents.forEach(tab => tab.classList.add('hidden'));
+    // Odstrani aktivni tridu z navigacnich prvku
     navItems.forEach(item => item.classList.remove('active'));
 
+    // Zobrazi vybranou kartu
     const targetTab = document.getElementById(targetTabId);
     if (targetTab) targetTab.classList.remove('hidden');
 
+    // Oznaci prislusny navigacni prvek jako aktivni
     const activeNav = document.querySelector(`[data-tab="${targetTabId}"]`);
     if (activeNav) activeNav.classList.add('active');
 }
 
+// Prirazeni event listeneru na navigacni prvky
 navItems.forEach(item => {
     item.addEventListener('click', (e) => {
         e.preventDefault();
@@ -219,6 +292,7 @@ navItems.forEach(item => {
     });
 });
 
+// Prirazeni event listeneru na tlacitka v obsahu (dashboard tlacitka)
 dashBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         const target = btn.getAttribute('data-target');
@@ -226,6 +300,7 @@ dashBtns.forEach(btn => {
     });
 });
 
-// spusteni aplikace
+// SPUSTENI APLIKACE
+// Volá inicializacní funkce pro naplneni katalogu a vykresli pocatecni stav
 inicializujAplikaci();
 renderMatriky();
