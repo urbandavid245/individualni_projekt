@@ -1,5 +1,5 @@
 import { KATALOG_NASTROJU } from './data.js';
-// --- ABSKTRAKTNÍ BÁZOVÁ TŘÍDA ---
+// abstraktni trida
 class Vyuka {
     _id;
     _obor;
@@ -17,7 +17,7 @@ class Vyuka {
         return `${this._obor.nazev} (${this._tydenniDotace}h týdně)`;
     }
 }
-// --- ODVOZENÉ TŘÍDY (POLÝMORFISMUS & DĚDIČNOST) ---
+//  odvozene tridy (dedicnost a polymorfismus) 
 class IndividualniVyuka extends Vyuka {
     _jePokrocily;
     constructor(id, obor, tydenniDotace, jePokrocily) {
@@ -52,7 +52,7 @@ class KomorniVyuka extends Vyuka {
         return Math.round((this._obor.cenaZaHodinu * this._tydenniDotace) * 1.4);
     }
 }
-// --- GLOBÁLNÍ STAV A SELEKTORY ---
+// globalni stav a selektory
 const skolniMatrika = [];
 const form = document.getElementById('lekce-form');
 const htmlKontejner = document.getElementById('vypis-lekci');
@@ -61,7 +61,7 @@ const nastrojSelect = document.getElementById('nastroj');
 const katalogGrid = document.getElementById('katalog-grid');
 const blockPocetZaku = document.getElementById('block-pocet-zaku');
 const blockPokrocily = document.getElementById('block-pokrocily');
-// Naplnění výběru oborů a statického katalogu
+// aplneni vyberu oboru a statickeho katalogu
 function inicializujAplikaci() {
     if (!nastrojSelect)
         return;
@@ -79,13 +79,13 @@ function inicializujAplikaci() {
             card.innerHTML = `
                 <h3>${nastroj.nazev}</h3>
                 <p style="font-size: 1.25rem; font-weight:600; color:#3b82f6; margin: 0.5rem 0;">${nastroj.cenaZaHodinu} Kč / hodina</p>
-                <span style="background:#eff6ff; color:#1d4ed8; padding:0.25rem 0.5rem; border-radius:4px; font-size:0.75rem; font-weight:500;">Schváleno ŠVP</span>
+               
             `;
             katalogGrid.appendChild(card);
         }
     });
 }
-// Dynamické skrývání formulářových polí
+// dynamicke skryvani formularovych poli 
 if (typSelect) {
     typSelect.addEventListener('change', () => {
         const val = typSelect.value;
@@ -93,7 +93,7 @@ if (typSelect) {
         blockPokrocily.style.display = (val === 'individualni') ? 'block' : 'none';
     });
 }
-// Rendering karet zapsaných lekcí
+// rendering karet zapsanych lekci 
 function renderMatriky() {
     if (!htmlKontejner)
         return;
@@ -105,19 +105,19 @@ function renderMatriky() {
     skolniMatrika.forEach(vyuka => {
         const card = document.createElement('div');
         card.className = 'dash-card';
-        let badgeText = '📌 Individuální';
+        let badgeText = ' Individuální';
         if (vyuka instanceof KolektivniVyuka)
-            badgeText = '🎨 Kolektivní';
+            badgeText = ' Kolektivní';
         if (vyuka instanceof KomorniVyuka)
-            badgeText = '🎻 Komorní (Duo)';
+            badgeText = ' Komorní (Duo)';
         card.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                <span style="font-weight:700; color:#1e293b;">Třída #${vyuka.id}</span>
+                <span style="font-weight:700; color:#1e293b;">Lekce #${vyuka.id}</span>
                 <span style="background:#f1f5f9; font-size:0.8rem; padding:0.25rem 0.5rem; border-radius:6px;">${badgeText}</span>
             </div>
             <h3 style="margin-bottom:0.25rem;">${vyuka.obor.nazev}</h3>
             <p style="font-size:0.9rem; color:#64748b; margin-bottom:1rem;">${vyuka.ziskejInfo()}</p>
-            <div style="border-top: 1px solid #e2e8f0; padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center;">
+            <div style="border-top: 1px solid #1351a3; padding-top:0.75rem; display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-size:0.85rem; color:#475569;">Vypočtené školné:</span>
                 <span style="font-size:1.2rem; font-weight:700; color:#10b981;">${vyuka.vypocitejSkolne()} Kč</span>
             </div>
@@ -125,7 +125,7 @@ function renderMatriky() {
         htmlKontejner.appendChild(card);
     });
 }
-// Submit formuláře
+// submit formulare
 if (form) {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -165,7 +165,7 @@ if (form) {
         }
     });
 }
-// SPA Routing (přepínání oken)
+// SPA routing (prepinani oken bez obnoveni stranky)
 const navItems = document.querySelectorAll('.nav-item');
 const tabContents = document.querySelectorAll('.tab-content');
 const dashBtns = document.querySelectorAll('.dash-btn');
@@ -194,6 +194,6 @@ dashBtns.forEach(btn => {
             switchTab(target);
     });
 });
-// Spuštění
+// spusteni aplikace
 inicializujAplikaci();
 renderMatriky();
